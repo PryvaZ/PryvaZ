@@ -9,13 +9,9 @@
 #include "build/build_config.h"
 
 #if BUILDFLAG(IS_WIN)
-#include <shlobj.h>
-
 #include <utility>
 
 #include "brave/browser/brave_shell_integration_win.h"
-#include "brave/browser/default_protocol_handler_utils_win.h"
-#include "chrome/installer/util/shell_util.h"
 #endif
 
 #if BUILDFLAG(IS_MAC)
@@ -51,27 +47,8 @@ BraveDefaultBrowserWorker::~BraveDefaultBrowserWorker() = default;
 
 void BraveDefaultBrowserWorker::SetAsDefaultImpl(
     base::OnceClosure on_finished_callback) {
-#if BUILDFLAG(IS_WIN)
-  if (GetDefaultBrowserSetPermission() != SET_DEFAULT_NOT_ALLOWED) {
-    bool success = false;
-    const wchar_t* kAssociations[] = {L"https", L"http", L".html", L".htm"};
-    for (const wchar_t* association : kAssociations) {
-      success =
-          protocol_handler_utils::SetDefaultProtocolHandlerFor(association);
-      if (!success)
-        break;
-    }
-
-    if (success) {
-      std::move(on_finished_callback).Run();
-
-      // Notify shell to refresh icons
-      ::SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
-      return;
-    }
-  }
-#endif
-  DefaultBrowserWorker::SetAsDefaultImpl(std::move(on_finished_callback));
+  // Privacy fork: never write or refresh host OS browser associations.
+  std::move(on_finished_callback).Run();
 }
 
 }  // namespace shell_integration
