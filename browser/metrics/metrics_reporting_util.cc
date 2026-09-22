@@ -19,23 +19,8 @@
 #include "components/version_info/channel.h"
 
 bool GetDefaultPrefValueForMetricsReporting() {
-#if BUILDFLAG(IS_BRAVE_ORIGIN_BRANDED)
+  // Disable metrics reporting on all builds - privacy hardened
   return false;
-#else
-  auto channel = chrome::GetChannel();
-  switch (channel) {
-    case version_info::Channel::STABLE:
-      return false;
-    case version_info::Channel::BETA:    // fall through
-    case version_info::Channel::DEV:     // fall through
-    case version_info::Channel::CANARY:
-      return true;
-    case version_info::Channel::UNKNOWN:
-      return false;
-  }
-  NOTREACHED() << "Unexpected value for channel: "
-               << std::to_underlying(channel);
-#endif  // BUILDFLAG(IS_BRAVE_ORIGIN_BRANDED)
 }
 
 bool ShouldShowCrashReportPermissionAskDialog() {
